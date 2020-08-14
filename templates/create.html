@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <div id="content-wrapper">
+
+      <div class="container-fluid">
+        <!-- DataTables Example -->
+          <div class="card mb-3">
+              <div class="card-header">
+                  <i class="fa fa-plus-circle"></i>
+                  Create Task</div>
+          <div class="card-body">
+            <div class="container">
+                <form id="form">
+                    <div class="form-group">
+                        <label for="formGroupExampleInput">Task</label>
+                        <textarea class="form-control" id="formGroupExampleInput" rows="3" placeholder="Task Details"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleFormControlSelect1">Status</label>
+                        <select class="form-control" id="exampleFormControlSelect1" name="form_select" onchange="showDiv('hidden_div', this)">
+                            <option value="0">Green</option>
+                            <option value="1">Yellow</option>
+                            <option value="2">Red</option>
+                        </select>
+                        <script>
+                            function showDiv(divId, element)
+                                {
+                                    document.getElementById(divId).style.display = element.value == 0 ? 'none' : 'block';
+                                }
+                        </script>
+                    </div>
+                    <div class="form-group" id="hidden_div">
+                        <label for="exampleFormControlTextarea1">Reason</label>
+                        <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                    </div>
+                    <br>
+                    <div class="form-group row">
+                        <div class="col-sm-1">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                        <script>
+                            var arr = {City: 'Moscow', Age: 25};
+                            $.ajax({
+                                url: 'Ajax.ashx',
+                                type: 'POST',
+                                data: JSON.stringify(arr),
+                                contentType: 'application/json; charset=utf-8',
+                                dataType: 'json',
+                                async: false,
+                                success: function (msg) {
+                                    alert(msg);
+                                }
+                            });
+                       </script>
+                   <div class="col">
+                       <button type="submit" class="btn btn-primary reset">Cancel</button>
+                        <script>
+                            $(document).ready(function () {
+                                $(".reset").click(function () {
+                                    $("#form")[0].reset();
+                                });
+                            });
+                        </script>
+                   </div>
+                    </div>
+                </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /.container-fluid -->
+
+      <!-- Sticky Footer -->
+      <footer class="sticky-footer">
+        <div class="container my-auto">
+          <div class="copyright text-center my-auto">
+            <span>Copyright © Your Website 2019</span>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+    <!-- /.content-wrapper -->
+
+
+{% endblock %}

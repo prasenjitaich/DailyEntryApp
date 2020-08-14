@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div id="content-wrapper">
+
+        <div class="container-fluid">
+            <!-- DataTables Example -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-table"></i>
+                    Task Table
+                </div>
+                <div class="card-body">
+                    <p id="no_task"  align="center" style="display:none" >No Task found please Create task</p>
+                    <div class="table-responsive" id="task_table" style="display:none" >
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Project</th>
+                                <th>Task</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Edit</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+            </div>
+
+        </div>
+        <!-- /.container-fluid -->
+
+        <!-- Sticky Footer -->
+        <footer class="sticky-footer">
+            <div class="container my-auto">
+                <div class="copyright text-center my-auto">
+                    <span>Copyright © Your Website 2019</span>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    <!-- /.content-wrapper -->
+{% endblock %}
+{% block script %}
+    <script>
+
+        $(document).ready(function () {
+            var userid = {{ context['user_id'] }}
+                $.ajax({
+                    url: "/task/" + userid + "/",
+                    type: 'GET',
+                    dataType: 'json', // added data type
+                    success: function (response) {
+                        if(response["data"] !=undefined)
+                        {
+                            $('#task_table').show()
+                        for (var i = 0; i < response["data"].length; i++) {
+                            var task_data = '<tr>';
+                            task_data += '<td>' + response["data"][i]["user"]["user_name"] + '</td>';
+                            task_data += '<td>' + response["data"][i]["project"]["project_name"] + '</td>';
+                            task_data += '<td>' + response["data"][i]["task_title"] + '</td>';
+                            task_data += '<td>' + response["data"][i]["status"] + '</td>';
+                            task_data += '<td>' + response["data"][i]["date"] + '</td>';
+                            var redirect_url = "{{ url_for('render_edit',task_id = 4) }}".replace(/.$/, parseInt(response['data'][i]['task_id']));
+                            task_data += "<td><a class='nav-link' href='"+redirect_url+"'><i class='fa fa-pencil-square-o'></i></td>";
+                            task_data += '</tr>';
+                            $('#dataTable tbody').append(task_data);
+                        }
+                        $('#dataTable').DataTable({
+                            "columnDefs": [
+    { "orderable": false, "targets": 5 }
+  ]
+    });
+                        }
+                        else {
+                            $('#no_task').show()
+
+                        }
+                    }
+                });
+
+        });
+    </script>
+{% endblock %}
+

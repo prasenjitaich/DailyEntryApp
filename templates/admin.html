@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+    <div id="content-wrapper">
+        <div class="container-fluid">
+            <!-- DataTables Example -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-user"></i>
+                    Admin
+                </div>
+                <div class="card-body">
+                    <div class="container">
+                        <div class="form-group">
+                            <label for="formGroupExampleInput">Add Projects</label>
+                            <textarea class="form-control" id="project" rows="3"
+                                      placeholder="Projects Name" style="width: 60%"></textarea>
+                            <br>
+                            <input type="checkbox" checked id="in_report"> In Report
+                            <br><br>
+                            <button type="submit" class="btn btn-primary" onclick="create_project()">Add
+                            </button>
+                            <br>
+                            <br>
+                            <form action="{{ url_for('generate_report_main') }}">
+                                <div class="form-group row">
+                                    <div class="col">
+                                        <button type="submit" class="btn btn-primary">Generate Report</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <h2>Projects Table   <button type="submit" id="pro" class="btn btn-primary" value="True"><span>Show</span></button></h2>
+                        <br>
+                        <div class="table-responsive" id="project_table" style="width:60%;display:None">
+                            <table class="table table-bordered" id="dataTable" cellspacing="0">
+                                <thead>
+                                <tr>
+                                    <th>Projects</th>
+                                    <th>Delete</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                        </div>
+                      <br>
+                       <div class="form-group">
+                    <h2>Task status</h2>
+                       <br>
+                    <div class="table-responsive" style="width:60%">
+                        <table class="table table-bordered" id="StatTable"   cellspacing="0">
+                            <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                 {% for user,status in context.items() %}
+                                     {% if status == False %}
+                                     <tr>
+                                         <td>{{ user }}</td>
+                                         <td><i class="fa fa-times" aria-hidden="true"></i></td>
+                                     </tr>
+                                     {% endif %}
+                                 {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                       </div>
+                    <br>
+                    <h2>Tasks Table <button type="submit" id="status" class="btn btn-primary" value="True"><span>Show</span></button></h2>
+                    <br>
+                    <div class="table-responsive" id="task_table" style="display:None">
+                        <table class="table table-bordered" id="taskTable" width="100%" cellspacing="0">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Project</th>
+                                <th>Task</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Delete</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+
+    <!-- Sticky Footer -->
+    <footer class="sticky-footer">
+        <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+                <span>Copyright © Your Website 2019</span>
+            </div>
+        </div>
+    </footer>
+    </div>
+    <!-- /.content-wrapper -->
+{% endblock %}
+{% block script %}
+    <script>
+
+        $(document).ready(function () {
+            $.ajax({
+                url: "/project/",
+                type: 'GET',
+                dataType: 'json', // added data type
+                success: function (response) {
+                    if(response["data"] !=undefined)
+                    {
+                    for (var i = 0; i < response["data"].length; i++) {
+                        var task_data = '<tr>';
+                        task_data += '<td>' + response["data"][i]["project_name"] + '</td>';
+                        task_data += "<td><button class='btn' onclick='delete_project(" + response["data"][i]["project_id"] + ")'><i class='fa fa-trash'></i></button></td>";
+                        task_data += '</tr>';
+                        $('#dataTable tbody').append(task_data);
+                    }
+                    }
+                    $('#dataTable').DataTable({
+                        "columnDefs": [
+                            {"orderable": false, "targets": 1}
+                        ]
+                    });
+                    $('#StatTable').DataTable({
+                        "columnDefs": [
+                            {"orderable": false, "targets": 1}
+                        ]
+                    });
+
+                }
+            });
+            $.ajax({
+                url: "/tasks/",
+                type: 'GET',
+                dataType: 'json', // added data type
+                success: function (response) {
+                    if(response["data"] !=undefined)
+                    {
+                    for (var i = 0; i < response["data"].length; i++) {
+                        var task_data = '<tr>';
+                        task_data += '<td>' + response["data"][i]["user"]["user_name"] + '</td>';
+                        task_data += '<td>' + response["data"][i]["project"]["project_name"] + '</td>';
+                        task_data += '<td>' + response["data"][i]["task_title"] + '</td>';
+                        task_data += '<td>' + response["data"][i]["status"] + '</td>';
+                        task_data += '<td>' + response["data"][i]["date"] + '</td>';
+                        task_data += "<td><button class='btn' onclick='delete_task(" + response["data"][i]["task_id"] + ")'><i class='fa fa-trash'></i></button></td>";
+
+                            task_data += '</tr>';
+                            $('#taskTable tbody').append(task_data);
+                        }
+                    }
+                    $('#taskTable').DataTable(
+                        {
+                            "aLengthMenu": [[25, 50, 75, -1], [25, 50, 75, "All"]],
+                            "iDisplayLength": 25,
+                            "order": [[4, 'desc']],
+                            "columnDefs": [
+                                {"orderable": false, "targets": 5}
+                            ]
+                        }
+                    );
+
+                }
+            });
+
+        });
+    </script>
+    <script>
+        $("#status").click(function () {
+            $("#task_table").toggle();
+            $("#status span").html($("#status span").html() == 'Show' ? 'Hide' : 'Show');
+        });
+        $("#pro").click(function () {
+            $("#project_table").toggle();
+            $("#pro span").html($("#pro span").html() == 'Show' ? 'Hide' : 'Show');
+        });
+
+        function create_project() {
+            var pro = {
+                "project_name": $('#project').val(),
+                "in_report": $('#in_report').is(':checked') ? true : false
+            }
+            $.ajax({
+                url: "/project/",
+                type: 'POST',
+                contentType:"application/json",
+                data: JSON.stringify(pro),
+                dataType: 'json', // added data type
+                success: function (response) {
+                    setTimeout(function () {
+                        location.reload();
+                    }, 500);
+                    var successOptions = {
+                        autoHideDelay: 2000,
+                        showAnimation: "fadeIn",
+                        hideAnimation: "fadeOut",
+                        hideDuration: 70,
+                        arrowShow: false,
+                        className: "success",
+                    };
+                    var failOptions = {
+                        autoHideDelay: 2000,
+                        showAnimation: "fadeIn",
+                        hideAnimation: "fadeOut",
+                        hideDuration: 70,
+                        arrowShow: false,
+                        className: "error",
+                    };
+
+                    $('.notifyjs-corner').empty();
+                    if (response['status'] == "1") {
+                        $.notify(response['message'], successOptions);
+                    } else {
+                        $.notify(response['message'], failOptions);
+                    }
+                }
+            });
+        }
+
+        function delete_project(project_id) {
+            swal({
+                    title: "Are you sure?",
+                    text: "Your will not be able to recover this record!",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-danger",
+                    confirmButtonText: "Yes, delete it!",
+                    closeOnConfirm: false
+                },
+                function () {
+                    $.ajax({
+                        url: "/project/" + project_id + "/",
+                        type: 'DELETE',
+                        dataType: 'json', // added data type
+                        success: function (response) {
+                            if (response['status'] == "1") {
+                                swal("Deleted!", "Your record has been deleted.", "success");
+                            } else {
+                                swal("Error!", "Your record has related to other tasks.", "error");
+                            }
+                            setTimeout(function(){  location.reload();}, 1000);
+                        }
+                    });
+                });
+        }
+
+
+        function delete_task(task_id) {
+            swal({
+                    title: "Are you sure?",
+                    text: "Your will not be able to recover this record!",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-danger",
+                    confirmButtonText: "Yes, delete it!",
+                    closeOnConfirm: false
+                },
+                function () {
+                    $.ajax({
+                        url: "/task/" + task_id + "/",
+                        type: 'DELETE',
+                        dataType: 'json', // added data type
+                        success: function (response) {
+                            if (response['status'] == "1") {
+                                swal("Deleted!", "Your record has been deleted.", "success");
+                            } else {
+                                swal("Error!", "Your record is not deleted.", "error");
+                            }
+                            setTimeout(function(){  location.reload();}, 1000);
+                        }
+                    });
+                });
+        }
+    </script>
+{% endblock %}
+

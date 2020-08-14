@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<body>
+<p>Date-{{ context['date'] }}</p>
+{% for key,parent_dict_item in context['pro_details'].items() %}
+    {% if key.in_report !=False %}
+          <p>*P - {{ key.project_name }}*</p>
+   {% for name, tasks in parent_dict_item.items() %}
+       <p>{{ name }}</p>
+       {% for task in tasks %}
+           <p>{{ loop.index }}.{{ task.task_title }}</p>
+           <p>->Status - {{ task.status }}</p>
+           {% if task.status !="Green" %}
+           <p>->Reason - {{ task.reason }}</p>
+           {% endif %}
+           {% endfor %}
+   {% endfor %}
+    {% endif %}
+{% endfor %}
+
+</body>
+</html>
